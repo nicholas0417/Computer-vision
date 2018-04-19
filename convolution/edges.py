@@ -47,7 +47,7 @@ def norm(img1,img2):
    for i in range(img1.shape[0]):
        for j in range(img1.shape[1]):
            q = (img1[i][j]**2 + img2[i][j]**2)**(1/2)
-           if (q>90):   #threshold
+           if (q>200):   #threshold
                img_copy[i][j] = 255  #obtain binary image
            else:
                img_copy[i][j] = 0            
@@ -79,7 +79,7 @@ def opencv_dilation(img):
     
 if __name__ == "__main__":
     
-    img = cv2.imread("wiki.png")
+    img = cv2.imread("wikipedia.jpg")
     opencv_sobel(img)          #sobel edge using opencv
     opencv_gaussianblur(img)    #gaussianblur using opencv
     opencv_dilation(img)
@@ -121,9 +121,8 @@ if __name__ == "__main__":
     #cv2.waitKey(0)
     
 
-    
     sobel_edge = norm(gradient_x, gradient_y)
-    cv2.imshow("sobel edge without opencv",sobel_edge)
+    cv2.imshow("Sobel Edge detector without opencv",sobel_edge)
     cv2.waitKey(0)
     
     cv2.destroyAllWindows()
