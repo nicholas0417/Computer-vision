@@ -6,8 +6,9 @@ Created on Mon Apr 16 18:13:22 2018
 """
 # 
 
-import cv2
+import cv2                      #only use to read image
 import numpy as np
+from PIL import Image           #only use to read image
 
 def conv_transform(img):
     image_copy = img.copy()
@@ -51,8 +52,34 @@ def norm(img1,img2):
                img_copy[i][j] = 255  #obtain binary image
            else:
                img_copy[i][j] = 0            
-   return img_copy            
-
+   return img_copy       
+     
+def gaussianBlur(img, radius):
+    dst = img
+    surface = (radius * 2) ** 2
+    for x in range(img.width):
+        for y in range(img.height):
+            r = 0
+            g = 0
+            b = 0
+            for rectY in range(y - radius, y + radius):
+                for rectX in range(x - radius, x + radius):
+                    if rectX < 0:
+                        rectX = 0
+                    elif rectX >= img.width:
+                        rectX = img.width - 1
+                    if rectY < 0:
+                        rectY = 0
+                    elif rectY >= img.height:
+                        rectY = img.height - 1
+                    pixel = img.getpixel((rectX, rectY))
+                    r += pixel[0]
+                    g += pixel[1]
+                    b += pixel[2]
+            dst.putpixel((x, y), (r // surface, g // surface, b // surface))
+        print(int(x / img.width * 100), "%", end="\r")
+    print("100 %")
+    return dst
 
 def opencv_sobel(img):
     img_gray = cv2.cvtColor(img , cv2.COLOR_BGR2GRAY)
@@ -67,24 +94,20 @@ def opencv_sobel(img):
     
 
 def opencv_gaussianblur(img):
-    gausBlur = cv2.GaussianBlur(img, (5,5),0)   #let kernel = 5 * 5
+    gausBlur = cv2.GaussianBlur(img, (5,5),0)          #let kernel = 5 * 5
     cv2.imshow('Gaussian Blur image Using openCV', gausBlur)
     cv2.waitKey(0)
 
-def opencv_dilation(img):
-    kernel = np.ones((5,5), np.uint8)
-    img_dilation = cv2.dilate(img, kernel, iterations=1)
-    cv2.imshow('Dilation', img_dilation)
-    cv2.waitKey(0)
+
     
 if __name__ == "__main__":
     
-    img = cv2.imread("wikipedia.jpg")
-    opencv_sobel(img)          #sobel edge using opencv
+    img = cv2.imread("wikipedia.jpg")  #pic on wiki- gaussian blur
+    opencv_sobel(img)           #sobel edge using opencv
     opencv_gaussianblur(img)    #gaussianblur using opencv
-    opencv_dilation(img)
+   
     
-   #Gx ,Gy for sobel_operator on wiki
+   #Gx ,Gy for sobel_operator on wiki(sobel operator)
     
     kernel = np.zeros(shape=(3,3))
     kernel[0, 0] = -1
@@ -99,7 +122,7 @@ if __name__ == "__main__":
     kernel[2, 1] =  2
     kernel[2, 2] =  1
     
-    print(kernel[2][0])
+    
     gradient_y = conv(img, kernel)
     #cv2.imshow("gradient_y",gradient_y)
     #cv2.waitKey(0)
@@ -117,12 +140,17 @@ if __name__ == "__main__":
     kernel[2, 2] =  2
     
     gradient_x = conv(img, kernel)
-    #cv2.imshow("gradient_x", gradient_x)
+    #cv2.imshow("gradient_x", gradient_x)   
     #cv2.waitKey(0)
     
-
+    #Sobel edge detector without opencv
     sobel_edge = norm(gradient_x, gradient_y)
     cv2.imshow("Sobel Edge detector without opencv",sobel_edge)
     cv2.waitKey(0)
+    
+    #gaussian Blur without opencv
+    img = Image.open("wikipedia.jpg")
+    img = gaussianBlur(img, 8)
+    img.show()
     
     cv2.destroyAllWindows()
